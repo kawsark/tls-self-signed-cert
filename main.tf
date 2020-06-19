@@ -101,3 +101,12 @@ resource "null_resource" "download_leaf_private_key" {
   }
 }
 
+resource "null_resource" "download_ca_private_key" {
+  count = var.create && var.download_certs ? 1 : 0
+
+  # Write the PEM-encoded ca certificate private key to this path (e.g. /etc/tls/ca.key.pem).
+  provisioner "local-exec" {
+    command = "echo '${chomp(tls_private_key.ca[0].private_key_pem)}' > ${format("%s-ca.key.pem", random_id.name[0].hex)} && chmod ${var.permissions} '${format("%s-ca.key.pem", random_id.name[0].hex)}'"
+  }
+}
+
